@@ -29,7 +29,7 @@ FROM transaction t
 JOIN wallet w ON t.wallet_id = w.id
 JOIN users u ON w.user_id = u.id
 WHERE t.created_at BETWEEN '2026-05-01 00:00:00'
-AND '2026-05-10 23:59:59'
+AND '2026-05-10 23:59:59' AND t.status = 'SUCCESS'
 AND type IN ('TOPUP','TRANSFER_IN') -- income
 -- AND type IN ('TRANSFER_OUT') -- expense
 AND u.id = 1
@@ -39,17 +39,21 @@ ORDER BY t.created_at DESC;
 SELECT w.user_id, u.fullname, w.balance,(
     SELECT SUM(amount) AS income
     FROM transaction
-    WHERE wallet_id = w.user_id AND type IN ('TOPUP','TRANSFER_IN')
+    WHERE wallet_id = w.user_id 
+    AND status = 'SUCCESS'
+    AND type IN ('TOPUP','TRANSFER_IN')
 ) AS income, (
     SELECT SUM(amount) AS expense
     FROM transaction 
-    WHERE wallet_id = w.user_id AND type = 'TRANSFER_OUT'
+    WHERE wallet_id = w.user_id
+    AND status = 'SUCCESS' 
+    AND type = 'TRANSFER_OUT'
 ) AS expense 
 FROM transaction t
 JOIN wallet w ON w.id = t.wallet_id
 JOIN users u ON u.id = w.user_id
 WHERE t.created_at BETWEEN '2026-05-01 00:00:00' 
-AND '2026-05-10 23:59:59' AND w.user_id = 1;
+AND '2026-05-10 23:59:59' AND w.user_id = 7
 GROUP BY w.user_id, u.fullname, w.balance
 
 -- find receiver with pagination
