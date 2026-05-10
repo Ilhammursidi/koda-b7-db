@@ -5,7 +5,7 @@ CREATE TABLE users (
     pin VARCHAR(6),
     fullname VARCHAR(255),
     photo_path VARCHAR(255),
-    phone_number VARCHAR(255) ,
+    phone_number VARCHAR(255) UNIQUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     deleted_at TIMESTAMPTZ
@@ -14,7 +14,7 @@ CREATE TABLE users (
 CREATE TABLE wallet (
     id SERIAL PRIMARY KEY,
     user_id INT UNIQUE NOT NULL,
-    balance INT DEFAULT 0,
+    balance INT NOT NULL DEFAULT 0,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     FOREIGN KEY (user_id) REFERENCES users(id)
 )
@@ -26,7 +26,7 @@ CREATE TABLE transaction (
     wallet_id INT NOT NULL,
     type VARCHAR(255) NOT NULL,
     amount INT NOT NULL,
-    status transaction_status DEFAULT 'PENDING',
+    status transaction_status NOT NULL DEFAULT 'PENDING',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     FOREIGN KEY (wallet_id) REFERENCES wallet(id)
 )
