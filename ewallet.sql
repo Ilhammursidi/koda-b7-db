@@ -19,6 +19,11 @@ CREATE TABLE wallet (
     FOREIGN KEY (user_id) REFERENCES users(id)
 )
 
+CREATE TABLE payment_methods (
+    id SERIAL PRIMARY KEY,
+    payment_name VARCHAR(255) NOT NULL
+)
+
 CREATE TYPE transaction_status AS ENUM ('PENDING','SUCCESS','FAILED');
 
 CREATE TABLE transactions (
@@ -33,27 +38,27 @@ CREATE TABLE transactions (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ,
     FOREIGN KEY (sender_wallet_id) REFERENCES wallet(id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (receiver_wallet_id) REFERENCES wallet(id),
     FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id)
 )
 
 CREATE TABLE transfer_details (
     id SERIAL PRIMARY KEY,
+    transaction_id INT UNIQUE NOT NULL,
     sender_wallet_id INT NOT NULL,
     receiver_wallet_id INT NOT NULL,
     amount INT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     FOREIGN KEY (sender_wallet_id) REFERENCES wallet(id),
+    FOREIGN KEY (transaction_id) REFERENCES transactions(id),
     FOREIGN KEY (receiver_wallet_id) REFERENCES wallet(id)
 )
 
-CREATE TABLE payment_methods (
-    id SERIAL PRIMARY KEY,
-    payment_name VARCHAR(255) NOT NULL
-)
 
 CREATE TABLE topup_details (
     id SERIAL PRIMARY KEY,
+    transaction_id INT UNIQUE NOT NULL,
     wallet_id INT NOT NULL,
     payment_method_id INT NOT NULL,
     order_amount INT NOT NULL,
@@ -63,10 +68,11 @@ CREATE TABLE topup_details (
     status transaction_status NOT NULL DEFAULT 'PENDING',
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     FOREIGN KEY (wallet_id) REFERENCES wallet(id),
+    FOREIGN KEY (transaction_id) REFERENCES transactions(id),
     FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id)
 )
 
--- ROLLBACK
+-- -- ROLLBACK
 
 -- BEGIN;
 -- TRUNCATE TABLE transactions RESTART IDENTITY CASCADE;
