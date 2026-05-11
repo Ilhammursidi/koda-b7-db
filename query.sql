@@ -40,14 +40,14 @@ SELECT w.user_id, u.fullname, w.balance,(
     SELECT SUM(amount) AS income
     FROM transaction
     WHERE wallet_id = w.user_id 
-    AND status = 'SUCCESS'
     AND type IN ('TOPUP','TRANSFER_IN')
+    AND status = 'SUCCESS'
 ) AS income, (
     SELECT SUM(amount) AS expense
     FROM transaction 
     WHERE wallet_id = w.user_id
-    AND status = 'SUCCESS' 
     AND type = 'TRANSFER_OUT'
+    AND status = 'SUCCESS' 
 ) AS expense 
 FROM transaction t
 JOIN wallet w ON w.id = t.wallet_id
@@ -60,8 +60,8 @@ GROUP BY w.user_id, u.fullname, w.balance
 SELECT t.wallet_id, u.fullname, u.phone_number, u.photo_path
 FROM users u
 JOIN transaction t ON u.id = t.wallet_id
-WHERE u.id != 1 -- if is login user 1
-LIMIT 2
+WHERE u.id != 1 -- if user login is user 1
+LIMIT 5
 OFFSET 0
 
 -- create transaction/topup
