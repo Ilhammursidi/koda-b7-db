@@ -6,7 +6,7 @@ WHERE email = 'ghaluh1@mail.com' AND password = 'pass123';
 -- register
 INSERT INTO users (email, password) VALUES
 ('ilham@mail.com', 'pass123');
-table users;
+
 INSERT INTO wallet (user_id, balance) VALUES
 (11, 0);
 
@@ -73,19 +73,24 @@ SET balance = balance + 100000,
 WHERE id = 1;
 
 -- get user profile (photo, fullname, phone, email)
-SELECT photo_path, fullname, phone_number, email
+SELECT photo_path AS photo, fullname, phone_number, email
 FROM users
 WHERE id = 1;
 
 -- change pin
-UPDATE users SET pin = '222222' WHERE id = 1;
-UPDATE users SET pin = '111111' WHERE id = 11;
+UPDATE users SET pin = '222222',
+updated_at = NOW()
+WHERE id = 1;
 
 -- change password
-UPDATE users SET password = 'ilham123' WHERE id = 2;
+UPDATE users SET password = 'ilham123',
+updated_at = NOW()
+WHERE id = 2;
 
 -- change user profile
 UPDATE users 
 SET fullname = 'ilham mursidi',
 photo_path = 'https://i.pravtar.cc/150?u=11',
-phone_number = '0812 3456 8910' WHERE id = 11;
+phone_number = '0812 3456 8910', 
+updated_at = NOW()
+WHERE id = 11;
