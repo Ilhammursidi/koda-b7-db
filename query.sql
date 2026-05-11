@@ -24,7 +24,7 @@ FROM transaction
 WHERE id = 3;
 
 -- get user history with option (income/expense, date range)
-SELECT t.wallet_id, t.type, t.amount, t.status, t.created_at AS date
+SELECT t.wallet_id, t.type, t.amount, t.status, t.created_at AS date_range
 FROM transaction t
 JOIN wallet w ON t.wallet_id = w.id
 JOIN users u ON w.user_id = u.id
@@ -83,7 +83,7 @@ updated_at = NOW()
 WHERE id = 1;
 
 -- change password
-UPDATE users SET password = 'ilham123',
+UPDATE users SET password = 'ilham100',
 updated_at = NOW()
 WHERE id = 2;
 
