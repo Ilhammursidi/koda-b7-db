@@ -22,38 +22,37 @@ WHERE id = 4;
 SELECT  w.user_id, t.type, t.amount, t.status 
 FROM transactions t
 JOIN wallet w ON t.user_id = w.user_id
-WHERE w.user_id = 2; 
+WHERE w.user_id = 7; 
 
 -- get user history with option (income/expense, date range)
-SELECT w.user_id, t.type, t.amount, t.status, t.created_at AS date_range
+SELECT w.user_id, t.type, t.amount, t.status, t.created_at AS date_range,
+CASE
+    WHEN type IN ('TRANSFER_OUT') THEN 'expense'
+    WHEN type IN ('TOPUP','TRANSFER_IN') THEN 'income'
+END AS type
 FROM transactions t
-JOIN wallet w ON t.user_id = w.id
-JOIN users u ON w.user_id = u.id
-WHERE t.created_at BETWEEN '2026-05-01 00:00:00'
-AND '2026-05-11 23:59:59' AND t.status = 'SUCCESS'
-AND type IN ('TOPUP','TRANSFER_IN') OR type IN ('TRANSFER_OUT')
-AND u.id = 1
-ORDER BY t.created_at DESC;
+JOIN wallet w ON t.user_id = w.user_id
+WHERE t.user_id = 1 AND t.created_at BETWEEN '2026-05-01 00:00:00' AND '2026-05-31 23:59:59'
 
 -- get user account information (balance, income, expense)
 SELECT w.user_id, u.fullname, w.balance,(
     SELECT SUM(amount)
     FROM transactions
-    WHERE wallet_id = w.user_id 
+    WHERE user_id = w.user_id 
     AND type IN ('TOPUP','TRANSFER_IN')
     AND status = 'SUCCESS'
 ) AS income, (
     SELECT SUM(amount)
     FROM transactions 
-    WHERE wallet_id = w.user_id
+    WHERE user_id = w.user_id
     AND type = 'TRANSFER_OUT'
     AND status = 'SUCCESS' 
 ) AS expense 
 FROM transactions t
-JOIN wallet w ON w.id = t.wallet_id
+JOIN wallet w ON w.id = t.user_id
 JOIN users u ON u.id = w.user_id
 WHERE t.created_at BETWEEN '2026-05-01 00:00:00' 
-AND '2026-05-10 23:59:59' AND w.user_id = 7
+AND '2026-05-31 23:59:59' AND w.user_id = 7
 GROUP BY w.user_id, u.fullname, w.balance
 
 -- find receiver with pagination
@@ -65,13 +64,16 @@ LIMIT 5
 OFFSET 0
 
 -- create transaction/topup
-INSERT INTO topup (wallet_id, amount, payment_method_id) VALUES (3, 25000, 2);
-INSERT INTO transaction (wallet_id, type, amount, status) VALUES (3, 'TOPUP', 25000, 'SUCCESS')
-UPDATE wallet SET balance = balance + 25000
-updated_at = NOW(), 
-WHERE id = 3;
-
-table wallet
+BEGIN;
+INSERT INTO topup_details
+(wallet_id, order_amount, tax_amount, delivery_fee, total_amount, payment_method_id, status)
+VALUES (11, 200000, 1000, 1000, 198000, 1, 'SUCCESS');
+INSERT INTO transactions (user_id, receiver_wallet_id, type, payment_method_id, amount, status)
+VALUES (11, 11, 'TOPUP', 1, 198000, 'SUCCESS');
+UPDATE wallet SET balance = balance + 198000,
+updated_at = NOW()
+WHERE user_id = 11;
+COMMIT;
 
 -- get user profile (photo, fullname, phone, email)
 SELECT photo_path AS photo, fullname, phone_number, email
@@ -81,7 +83,7 @@ WHERE id = 1;
 -- change pin
 UPDATE users SET pin = '222222',
 updated_at = NOW()
-WHERE id = 1;
+WHERE id = 11;
 
 -- change password
 UPDATE users SET password = 'ilham100',
@@ -95,3 +97,5 @@ photo_path = 'https://i.pravtar.cc/150?u=11',
 phone_number = '0812 3456 8910', 
 updated_at = NOW()
 WHERE id = 11;
+
+table users
