@@ -65,14 +65,21 @@ OFFSET 0
 
 -- create transaction/topup
 BEGIN;
-INSERT INTO topup_details
-(wallet_id, order_amount, tax_amount, delivery_fee, total_amount, payment_method_id, status)
-VALUES (11, 200000, 1000, 1000, 198000, 1, 'SUCCESS');
 INSERT INTO transactions (user_id, receiver_wallet_id, type, payment_method_id, amount, status)
-VALUES (11, 11, 'TOPUP', 1, 198000, 'SUCCESS');
+VALUES (11, 11, 'TOPUP', 1, 198000, 'SUCCESS')
+RETURNING id;
+
+INSERT INTO topup_details
+(transaction_id, wallet_id, order_amount, tax_amount, delivery_fee, total_amount, payment_method_id, status)
+VALUES (
+  currval('transactions_id_seq'),
+  11, 200000, 1000, 1000, 198000, 1, 'SUCCESS'
+);
+
 UPDATE wallet SET balance = balance + 198000,
 updated_at = NOW()
 WHERE user_id = 11;
+
 COMMIT;
 
 -- get user profile (photo, fullname, phone, email)
