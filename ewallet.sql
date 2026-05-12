@@ -6,6 +6,7 @@ CREATE TABLE users (
     fullname VARCHAR(255),
     photo_path VARCHAR(255),
     phone_number VARCHAR(255) UNIQUE,
+    isVerified BOOLEAN,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ,
     deleted_at TIMESTAMPTZ
@@ -48,7 +49,7 @@ CREATE TABLE transfer_details (
     transaction_id INT UNIQUE NOT NULL,
     sender_wallet_id INT NOT NULL,
     receiver_wallet_id INT NOT NULL,
-    amount INT NOT NULL,
+    -- amount INT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     FOREIGN KEY (sender_wallet_id) REFERENCES wallet(id),
     FOREIGN KEY (transaction_id) REFERENCES transactions(id),
